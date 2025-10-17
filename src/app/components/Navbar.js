@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useSmoothScroll } from './SmoothScrollContext';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -79,27 +79,19 @@ const Navbar = () => {
     }
   ];
 
-const { scrollToSection } = useSmoothScroll();
-
- const handleNavClick = (sectionId, e) => {
-    e.preventDefault();
-    scrollToSection(sectionId);
-    setIsMenuOpen(false);
-  };
-
   return (
-<nav className="navbar relative z-50">
+    <nav className="navbar relative z-50">
       <div className="nav-container">
-        {/* Logo - Netflix Style CanVmora */}
+        {/* Logo */}
         <div className="logo-section">
-        <Link href="/" className="logo" onClick={closeMenu}>
-         <Image
-      src="/logo.png"
-      alt="ConVmora Logo"
-      width={100}
-      height={50}
-      className="object-contain"
-    />  
+          <Link href="/" className="logo" onClick={closeMenu}>
+            <Image
+              src="/logo.png"
+              alt="ConVmora Logo"
+              width={100}
+              height={50}
+              className="object-contain"
+            />  
           </Link>
         </div>
 
@@ -119,14 +111,22 @@ const { scrollToSection } = useSmoothScroll();
           {navItems.map((item, index) => (
             <li 
               key={index} 
-className={`nav-item font-bold ${item.hasDropdown ? 'dropdown' : ''} ${activeDropdown === index ? 'active' : ''}`}            >
+              className={`nav-item font-bold ${item.hasDropdown ? 'dropdown' : ''} ${activeDropdown === index ? 'active' : ''}`}
+            >
               {item.hasDropdown ? (
                 <>
                   <button 
                     className="nav-link dropdown-toggle"
                     onClick={() => toggleDropdown(index)}
                   >
-                    {item.label} <span className="dropdown-arrow">~</span>
+                    {item.label} 
+                    <span className="dropdown-arrow">
+                      {activeDropdown === index ? (
+                        <ChevronUp className="w-4 h-4 ml-1 transition-transform duration-200" />
+                      ) : (
+                        <ChevronDown className="w-4 h-4 ml-1 transition-transform duration-200" />
+                      )}
+                    </span>
                   </button>
                   <div className="dropdown-content">
                     {item.dropdownItems.map((dropdownItem, dropdownIndex) => (
@@ -161,53 +161,17 @@ className={`nav-item font-bold ${item.hasDropdown ? 'dropdown' : ''} ${activeDro
       )}
 
       <style jsx>{`
-.navbar {
-  background-color: #240046;
-  border-bottom: 1px solid #333;
-  padding: 0;
-  position: sticky;
-  top: 0;
-  width: 100%;
-  z-index: 1000; /* Navbar يبقى 1000 */
-  overflow: visible !important;
-}
+        .navbar {
+          background-color: #240046;
+          border-bottom: 1px solid #333;
+          padding: 0;
+          position: sticky;
+          top: 0;
+          width: 100%;
+          z-index: 1000;
+          overflow: visible !important;
+        }
 
-.dropdown-content {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background-color: #240046;
-  min-width: 180px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  z-index: 1100; /* Dropdown يصبح 1100 */
-  border: 1px solid #333;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-5px);
-  transition: all 0.2s ease;
-}
-
-/* للموبايل أيضاً */
-@media (max-width: 1024px) {
-  .nav-menu {
-    position: fixed;
-    top: 60px;
-    left: -100%;
-    width: 280px;
-    height: calc(100vh - 60px);
-    background-color: #1a1a1a;
-    flex-direction: column;
-    transition: 0.3s ease;
-    padding: 0;
-    z-index: 999; /* قائمة الموبايل 999 */
-    overflow-y: auto;
-    border-right: 1px solid #333;
-  }
-
-  .dropdown-content {
-    z-index: 1000; /* في الموبايل 1000 */
-  }
-}
         .nav-container {
           display: flex;
           justify-content: space-between;
@@ -218,7 +182,7 @@ className={`nav-item font-bold ${item.hasDropdown ? 'dropdown' : ''} ${activeDro
           padding: 0 20px;
         }
 
-        /* Netflix Style Logo */
+        /* Logo Section */
         .logo-section {
           display: flex;
           align-items: center;
@@ -228,28 +192,6 @@ className={`nav-item font-bold ${item.hasDropdown ? 'dropdown' : ''} ${activeDro
           display: flex;
           align-items: center;
           text-decoration: none;
-        }
-
-        .netflix-logo {
-          display: flex;
-          align-items: center;
-        }
-
-        .logo-text {
-          font-size: 28px;
-          font-weight: 700;
-          color: #474996;
-          letter-spacing: 1px;
-          transition: all 0.3s ease;
-        }
-
-        .logo-text:hover {
-          text-shadow: #4747ff;
-          transform: scale(1.05);
-        }
-
-        .netflix-font {
-          font-family: 'Bebas Neue', 'Arial Narrow', Arial, sans-serif;
         }
 
         /* Navigation Menu */
@@ -301,12 +243,32 @@ className={`nav-item font-bold ${item.hasDropdown ? 'dropdown' : ''} ${activeDro
         }
 
         .dropdown-arrow {
-          color: #666;
-          font-size: 12px;
+          color: #ccc;
           margin-left: 5px;
+          display: flex;
+          align-items: center;
+          transition: all 0.2s ease;
         }
 
-     
+        .dropdown.active .dropdown-arrow {
+          color: #fff;
+        }
+
+        .dropdown-content {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          background-color: #240046;
+          min-width: 180px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+          z-index: 1100;
+          border: 1px solid #333;
+          opacity: 0;
+          visibility: hidden;
+          transform: translateY(-5px);
+          transition: all 0.2s ease;
+        }
+
         .dropdown.active .dropdown-content {
           opacity: 1;
           visibility: visible;
@@ -406,7 +368,7 @@ className={`nav-item font-bold ${item.hasDropdown ? 'dropdown' : ''} ${activeDro
             flex-direction: column;
             align-items: stretch;
             border-bottom: 1px solid #333;
-              overflow: visible !important;
+            overflow: visible !important;
           }
 
           .nav-link {
@@ -438,9 +400,9 @@ className={`nav-item font-bold ${item.hasDropdown ? 'dropdown' : ''} ${activeDro
             border-bottom: 1px solid #333;
           }
 
-          /* Adjust logo size for mobile */
-          .logo-text {
-            font-size: 24px;
+          /* Adjust dropdown arrow for mobile */
+          .dropdown-arrow {
+            margin-left: auto;
           }
         }
 
@@ -450,25 +412,17 @@ className={`nav-item font-bold ${item.hasDropdown ? 'dropdown' : ''} ${activeDro
             padding: 0 15px;
             font-size: 13px;
           }
-          
-          .logo-text {
-            font-size: 26px;
-          }
         }
 
         /* Small mobile devices */
         @media (max-width: 480px) {
-          .logo-text {
-            font-size: 22px;
-          }
-          
           .nav-container {
             padding: 0 15px;
           }
         }
       `}</style>
 
-      {/* Add Google Fonts for Netflix style */}
+      {/* Add Google Fonts */}
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
       `}</style>

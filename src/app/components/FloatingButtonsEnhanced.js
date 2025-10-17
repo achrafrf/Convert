@@ -41,7 +41,7 @@ const FloatingButtonsEnhanced = () => {
         onClick={handleDesignedByClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className="fixed bottom-6 left-6 z-50 p-3  transition-all duration-500 hover:scale-105  "
+        className="fixed bottom-1 left-2 z-50 p-3  transition-all duration-500 hover:scale-105  "
         aria-label="Designed by Achraf Rafiq"
       >
         <div className="flex items-center space-x-2 space-x-reverse relative">

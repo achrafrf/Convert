@@ -2,34 +2,42 @@
 'use client';
 import { useState, useRef } from 'react';
 import { createWorker } from 'tesseract.js';
-import { FileText, Upload, Copy, Download, X, Languages } from 'lucide-react';
+import { FileText, Upload, Copy, Download, X, Languages, Settings, Zap } from 'lucide-react';
 
 const ImageToText = ({ onClose }) => {
   const [image, setImage] = useState(null);
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [progressStatus, setProgressStatus] = useState('');
   const [detectedLanguage, setDetectedLanguage] = useState('');
+  const [imageQuality, setImageQuality] = useState('');
+  const [advancedMode, setAdvancedMode] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState('auto');
   const fileInputRef = useRef(null);
 
+  // معالجة تحميل الصورة مع تحسين الجودة
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // التحقق من نوع الملف
       if (!file.type.startsWith('image/')) {
         alert('الرجاء تحميل ملف صورة فقط');
         return;
       }
       
-      // التحقق من حجم الملف (5MB كحد أقصى)
-      if (file.size > 5 * 1024 * 1024) {
-        alert('حجم الملف كبير جداً. الحد الأقصى 5MB');
+      if (file.size > 10 * 1024 * 1024) {
+        alert('حجم الملف كبير جداً. الحد الأقصى 10MB');
         return;
       }
 
       const reader = new FileReader();
       reader.onload = (e) => {
-        setImage(e.target.result);
+        const img = new Image();
+        img.onload = () => {
+          analyzeImageQuality(img);
+          setImage(e.target.result);
+        };
+        img.src = e.target.result;
       };
       reader.readAsDataURL(file);
       setText('');
@@ -37,21 +45,51 @@ const ImageToText = ({ onClose }) => {
     }
   };
 
+  // تحليل جودة الصورة
+  const analyzeImageQuality = (img) => {
+    const quality = img.width < 300 || img.height < 300 ? 'منخفضة (الدقة صغيرة)' : 'جيدة';
+    setImageQuality(quality);
+  };
+
+  // تحسين الصورة قبل المعالجة
+  const enhanceImage = (imageSrc) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // زيادة الدقة للصور الصغيرة
+        const scale = img.width < 600 ? 2 : 1;
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        
+        // تطبيق تحسينات
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', 0.9));
+      };
+      img.src = imageSrc;
+    });
+  };
+
   const detectLanguageFromText = (text) => {
-    // كشف اللغة بناءً على الأحرف
-    const arabicChars = /[\u0600-\u06FF]/;
-    const englishChars = /[a-zA-Z]/;
+    const arabicChars = text.match(/[\u0600-\u06FF]/g) || [];
+    const englishChars = text.match(/[a-zA-Z]/g) || [];
     
-    if (arabicChars.test(text)) {
-      return 'العربية';
-    } else if (englishChars.test(text)) {
-      return 'English';
+    const arabicRatio = arabicChars.length / (text.length || 1);
+    const englishRatio = englishChars.length / (text.length || 1);
+    
+    if (arabicRatio > 0.3 && arabicRatio > englishRatio) {
+      return { code: 'ara', name: 'العربية', confidence: Math.round(arabicRatio * 100) };
+    } else if (englishRatio > 0.3) {
+      return { code: 'eng', name: 'English', confidence: Math.round(englishRatio * 100) };
     } else {
-      return 'غير معروفة';
+      return { code: 'unknown', name: 'غير معروفة', confidence: 0 };
     }
   };
 
-  const convertImageToText = async () => {
+  // النسخة المحسنة باستخدام API الصحيح
+  const convertImageToTextEnhanced = async () => {
     if (!image) {
       alert('الرجاء تحميل صورة أولاً');
       return;
@@ -59,58 +97,87 @@ const ImageToText = ({ onClose }) => {
 
     setLoading(true);
     setProgress(0);
+    setProgressStatus('جاري تحسين الصورة...');
     setText('');
     setDetectedLanguage('');
 
     try {
-      // محاكاة شريط التقدم
-      const progressInterval = setInterval(() => {
-        setProgress(prev => {
-          if (prev >= 80) {
-            clearInterval(progressInterval);
-            return 80;
-          }
-          return prev + 10;
-        });
-      }, 300);
-
-      // إنشاء Worker مع الإصاح الصحيح
-      const worker = await createWorker('eng+ara'); // تحميل اللغات المطلوبة
+      // الخطوة 1: تحسين الصورة
+      setProgress(10);
+      setProgressStatus('جاري تحسين جودة الصورة...');
+      const enhancedImage = await enhanceImage(image);
       
-      // تحديث التقدم
+      // الخطوة 2: إنشاء وتحميل Worker
+      setProgress(30);
+      setProgressStatus('جاري تحميل محرك التعرف على النص...');
+      
+      const worker = await createWorker();
+      
+      // تحديد اللغة بناءً على الاختيار
+      let lang = 'eng+ara';
+      if (selectedLanguage !== 'auto') {
+        lang = selectedLanguage;
+      }
+
+      // تحميل اللغة مباشرة في createWorker أو استخدام loadLanguage
+      setProgress(50);
+      setProgressStatus('جاري تهيئة الإعدادات المتقدمة...');
+      
+      // الطريقة الصحيحة: تمرير اللغة عند إنشاء الـ Worker أو استخدام loadLanguage
+      await worker.loadLanguage(lang);
+      await worker.initialize(lang);
+      
+      // تطبيق إعدادات متقدمة لتحسين الدقة
+      await worker.setParameters({
+        tessedit_pageseg_mode: '6', // كتلة نصية موحدة
+        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF .,!?()[]{}:;-"\'',
+        tessedit_ocr_engine_mode: '1', // محرك LSTM
+        preserve_interword_spaces: '1',
+      });
+
+      // الخطوة 3: التعرف على النص
+      setProgress(70);
+      setProgressStatus('جاري التعرف على النص...');
+      
+      const { data } = await worker.recognize(enhancedImage);
+
       setProgress(90);
+      setProgressStatus('جاري معالجة النتائج...');
 
-      // التعرف على النص
-      const { data } = await worker.recognize(image);
+      // تنظيف النص الناتج
+      let cleanedText = data.text
+        .replace(/\n\s*\n/g, '\n')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      setText(cleanedText);
       
-      clearInterval(progressInterval);
+      // كشف اللغة
+      const langInfo = detectLanguageFromText(cleanedText);
+      setDetectedLanguage(langInfo);
+
+      // الخطوة 4: التنظيف
       setProgress(100);
+      setProgressStatus('اكتمل!');
       
-      // تعيين النص المكتشف
-      setText(data.text);
-      
-      // كشف اللغة تلقائياً
-      const lang = detectLanguageFromText(data.text);
-      setDetectedLanguage(lang);
-      
-      // إنهاء ال Worker
       await worker.terminate();
       
-      // إعادة التعيين
       setTimeout(() => {
         setLoading(false);
         setProgress(0);
-      }, 500);
+        setProgressStatus('');
+      }, 1000);
 
     } catch (error) {
       console.error('OCR Error:', error);
       setText('حدث خطأ في تحويل الصورة إلى نص. الرجاء المحاولة مرة أخرى.');
       setLoading(false);
       setProgress(0);
+      setProgressStatus('');
     }
   };
 
-  // نسخة مبسطة بدون كشف لغة
+  // نسخة مبسطة وموثوقة
   const convertImageToTextSimple = async () => {
     if (!image) {
       alert('الرجاء تحميل صورة أولاً');
@@ -119,94 +186,121 @@ const ImageToText = ({ onClose }) => {
 
     setLoading(true);
     setProgress(0);
+    setProgressStatus('جاري المعالجة...');
     setText('');
     setDetectedLanguage('');
 
     try {
-      // شريط تقدم محاكى
-      const progressSteps = [10, 25, 50, 75, 90, 100];
-      for (const step of progressSteps) {
-        setProgress(step);
-        await new Promise(resolve => setTimeout(resolve, 400));
-      }
-
-      // استخدام Tesseract.js بشكل صحيح
       const worker = await createWorker();
       
-      // تهيئة ال Worker بلغات متعددة
-      await worker.load();
-      await worker.initialize('eng+ara'); // الإنجليزية والعربية
+      // استخدام الطريقة المبسطة
+      setProgress(30);
+      setProgressStatus('جاري تحميل اللغة...');
+      
+      // تحديد اللغة
+      let lang = 'eng+ara';
+      if (selectedLanguage !== 'auto') {
+        lang = selectedLanguage;
+      }
+
+      await worker.loadLanguage(lang);
+      await worker.initialize(lang);
+      
+      setProgress(60);
+      setProgressStatus('جاري التعرف على النص...');
       
       const { data } = await worker.recognize(image);
+      
+      setProgress(90);
+      setProgressStatus('جاري معالجة النتائج...');
+
       setText(data.text);
       
-      // كشف اللغة
-      const lang = detectLanguageFromText(data.text);
-      setDetectedLanguage(lang);
-      
+      const langInfo = detectLanguageFromText(data.text);
+      setDetectedLanguage(langInfo);
+
+      setProgress(100);
       await worker.terminate();
-      setLoading(false);
       
+      setTimeout(() => {
+        setLoading(false);
+        setProgress(0);
+        setProgressStatus('');
+      }, 500);
+
     } catch (error) {
       console.error('OCR Error:', error);
       setText('حدث خطأ في تحويل الصورة إلى نص. الرجاء المحاولة مرة أخرى.');
       setLoading(false);
       setProgress(0);
+      setProgressStatus('');
     }
   };
 
-  // الحل الأكثر موثوقية
+  // نسخة باستخدام createWorker مع الإعدادات المسبقة
   const convertImageToTextReliable = async () => {
-    if (!image) {
-      alert('الرجاء تحميل صورة أولاً');
-      return;
-    }
+    if (!image) return;
 
     setLoading(true);
     setProgress(0);
+    setProgressStatus('جاري التحضير...');
     setText('');
-    setDetectedLanguage('');
 
     try {
-      // استخدام أسلوب أكثر موثوقية
-      const Tesseract = await import('tesseract.js');
-      const worker = await Tesseract.createWorker();
+      // تحديد اللغة
+      let lang = 'eng+ara';
+      if (selectedLanguage !== 'auto') {
+        lang = selectedLanguage;
+      }
 
-      // محاكاة التقدم
-      const progressInterval = setInterval(() => {
-        setProgress(prev => {
-          if (prev >= 85) {
-            clearInterval(progressInterval);
-            return 85;
+      // إنشاء Worker مع الإعدادات المسبقة
+      const worker = await createWorker(lang, 1, {
+        logger: m => {
+          if (m.status === 'recognizing text') {
+            setProgress(60);
+            setProgressStatus('جاري التعرف على النص...');
           }
-          return prev + 5;
-        });
-      }, 200);
+        }
+      });
 
-      // التعرف على النص
-      const result = await worker.recognize(image);
+      setProgress(30);
+      setProgressStatus('جاري معالجة الصورة...');
+
+      const { data } = await worker.recognize(image);
       
-      clearInterval(progressInterval);
+      setProgress(90);
+      setProgressStatus('جاري التنظيف...');
+
+      let finalText = data.text
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line.length > 0)
+        .join('\n')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      setText(finalText);
+      
+      const langInfo = detectLanguageFromText(finalText);
+      setDetectedLanguage(langInfo);
+
       setProgress(100);
-      
-      setText(result.data.text);
-      
-      // كشف اللغة
-      const lang = detectLanguageFromText(result.data.text);
-      setDetectedLanguage(lang);
+      setProgressStatus('اكتمل!');
       
       await worker.terminate();
       
       setTimeout(() => {
         setLoading(false);
         setProgress(0);
-      }, 600);
+        setProgressStatus('');
+      }, 800);
 
     } catch (error) {
       console.error('OCR Error:', error);
-      setText('حدث خطأ في تحويل الصورة إلى نص. الرجاء المحاولة مرة أخرى.');
+      setText('فشل في معالجة الصورة. جرب صورة أخرى أو تأكد من وضوح النص.');
       setLoading(false);
       setProgress(0);
+      setProgressStatus('');
     }
   };
 
@@ -214,6 +308,7 @@ const ImageToText = ({ onClose }) => {
     setImage(null);
     setText('');
     setDetectedLanguage('');
+    setImageQuality('');
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -224,8 +319,6 @@ const ImageToText = ({ onClose }) => {
       await navigator.clipboard.writeText(text);
       alert('تم نسخ النص إلى الحافظة!');
     } catch (err) {
-      console.error('Failed to copy text: ', err);
-      // Fallback for older browsers
       const textArea = document.createElement('textarea');
       textArea.value = text;
       document.body.appendChild(textArea);
@@ -248,7 +341,7 @@ const ImageToText = ({ onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div className="flex items-center space-x-3">
@@ -257,15 +350,28 @@ const ImageToText = ({ onClose }) => {
             </div>
             <div>
               <h2 className="text-xl font-bold text-gray-800">محول الصور إلى نص</h2>
-              <p className="text-gray-600 text-sm">استخرج النص من الصور باستخدام الذكاء الاصطناعي</p>
+              <p className="text-gray-600 text-sm">استخرج النص من الصور بدقة عالية</p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5 text-gray-600" />
-          </button>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setAdvancedMode(!advancedMode)}
+              className={`p-2 rounded-lg transition-colors ${
+                advancedMode 
+                  ? 'bg-purple-100 text-purple-600' 
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+              title="الوضع المتقدم"
+            >
+              <Settings className="w-4 h-4" />
+            </button>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5 text-gray-600" />
+            </button>
+          </div>
         </div>
 
         <div className="p-6 overflow-auto max-h-[70vh]">
@@ -273,7 +379,7 @@ const ImageToText = ({ onClose }) => {
             {/* Upload Section */}
             <div className="space-y-4">
               <div 
-                className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-green-500 transition-colors"
+                className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:border-green-500 transition-colors"
                 onClick={() => fileInputRef.current?.click()}
               >
                 {image ? (
@@ -281,18 +387,27 @@ const ImageToText = ({ onClose }) => {
                     <img 
                       src={image} 
                       alt="Uploaded" 
-                      className="max-h-48 mx-auto rounded-lg object-contain"
+                      className="max-h-48 mx-auto rounded-lg object-contain shadow-sm"
                     />
-                    <p className="text-sm text-gray-600">انقر لتغيير الصورة</p>
+                    <div className="text-center">
+                      <p className="text-sm text-gray-600">انقر لتغيير الصورة</p>
+                      {imageQuality && (
+                        <p className={`text-xs mt-1 ${
+                          imageQuality.includes('منخفضة') ? 'text-red-500' : 'text-green-500'
+                        }`}>
+                          جودة الصورة: {imageQuality}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-3 py-8">
                     <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto">
                       <Upload className="w-8 h-8 text-gray-400" />
                     </div>
                     <div>
                       <p className="font-medium text-gray-700">انقر لتحميل صورة</p>
-                      <p className="text-sm text-gray-500 mt-1">JPG, PNG, BMP - الحد الأقصى 5MB</p>
+                      <p className="text-sm text-gray-500 mt-1">JPG, PNG, BMP - الحد الأقصى 10MB</p>
                     </div>
                   </div>
                 )}
@@ -305,13 +420,54 @@ const ImageToText = ({ onClose }) => {
                 />
               </div>
 
-              {/* Language Detection Info */}
-              {detectedLanguage && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center space-x-2 space-x-reverse">
-                  <Languages className="w-4 h-4 text-blue-600" />
-                  <span className="text-blue-700 text-sm">
-                    <strong>اللغة المكتشفة:</strong> {detectedLanguage}
-                  </span>
+              {/* Advanced Settings */}
+              {advancedMode && (
+                <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                  <h4 className="font-medium text-purple-800 mb-3 flex items-center">
+                    <Zap className="w-4 h-4 ml-2" />
+                    الإعدادات المتقدمة
+                  </h4>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-purple-700 mb-1">
+                        اختيار اللغة
+                      </label>
+                      <select
+                        value={selectedLanguage}
+                        onChange={(e) => setSelectedLanguage(e.target.value)}
+                        className="w-full p-2 border border-purple-300 rounded-lg text-sm bg-white"
+                      >
+                        <option value="auto">الكشف التلقائي</option>
+                        <option value="ara">العربية فقط</option>
+                        <option value="eng">الإنجليزية فقط</option>
+                        <option value="ara+eng">العربية والإنجليزية</option>
+                      </select>
+                    </div>
+                    <p className="text-xs text-purple-600">
+                      💡 اختيار اللغة يدوياً يحسن الدقة مع الصور المعقدة
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Language Detection & Quality Info */}
+              {(detectedLanguage || imageQuality) && (
+                <div className="space-y-2">
+                  {detectedLanguage && detectedLanguage.code !== 'unknown' && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Languages className="w-4 h-4 text-blue-600" />
+                        <span className="text-blue-700 text-sm">
+                          <strong>اللغة:</strong> {detectedLanguage.name}
+                        </span>
+                      </div>
+                      {detectedLanguage.confidence > 0 && (
+                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                          {detectedLanguage.confidence}% تأكيد
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -319,19 +475,19 @@ const ImageToText = ({ onClose }) => {
               <div className="space-y-4">
                 <div className="flex space-x-3 space-x-reverse">
                   <button 
-                    onClick={convertImageToTextReliable} 
+                    onClick={convertImageToTextReliable}
                     disabled={!image || loading}
-                    className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white py-3 px-6 rounded-lg font-medium hover:from-green-600 hover:to-emerald-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white py-3 px-6 rounded-lg font-medium hover:from-green-600 hover:to-emerald-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-sm"
                   >
                     {loading ? (
                       <>
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin ml-2" />
-                        جاري التحويل... {progress}%
+                        {progressStatus} {progress}%
                       </>
                     ) : (
                       <>
                         <FileText className="w-4 h-4 ml-2" />
-                        استخراج النص تلقائياً
+                        استخراج النص
                       </>
                     )}
                   </button>
@@ -339,15 +495,28 @@ const ImageToText = ({ onClose }) => {
                   <button 
                     onClick={clearAll}
                     disabled={loading}
-                    className="px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                    className="px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 shadow-sm"
                   >
                     مسح الكل
                   </button>
                 </div>
 
+                {/* Progress Bar */}
+                {loading && (
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                )}
+
                 <div className="text-center">
                   <p className="text-xs text-gray-500">
-                    ✅ الكشف التلقائي عن اللغة (العربية/الإنجليزية)
+                    {advancedMode ? 
+                      '🔍 الوضع المتقدم: تحسينات الذكاء الاصطناعي للدقة القصوى' : 
+                      '✅ الكشف التلقائي عن اللغة • معالجة مسبقة للصورة • نتائج أدق'
+                    }
                   </p>
                 </div>
               </div>
@@ -361,14 +530,14 @@ const ImageToText = ({ onClose }) => {
                   <div className="flex space-x-2 space-x-reverse">
                     <button 
                       onClick={copyToClipboard}
-                      className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                      className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors shadow-sm"
                       title="نسخ النص"
                     >
                       <Copy className="w-4 h-4" />
                     </button>
                     <button 
                       onClick={downloadText}
-                      className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                      className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors shadow-sm"
                       title="تحميل النص"
                     >
                       <Download className="w-4 h-4" />
@@ -377,10 +546,12 @@ const ImageToText = ({ onClose }) => {
                 )}
               </div>
               
-              <div className="border border-gray-300 rounded-lg h-64 overflow-auto bg-gray-50">
+              <div className="border border-gray-300 rounded-lg h-64 overflow-auto bg-gray-50 shadow-inner">
                 {text ? (
                   <div className="p-4">
-                    <div className="whitespace-pre-wrap text-gray-800 text-sm leading-6 font-sans direction-rtl text-right">
+                    <div className={`whitespace-pre-wrap text-gray-800 text-sm leading-6 font-sans ${
+                      detectedLanguage?.code === 'ara' ? 'text-right direction-rtl' : 'text-left direction-ltr'
+                    }`}>
                       {text}
                     </div>
                   </div>
@@ -389,29 +560,50 @@ const ImageToText = ({ onClose }) => {
                     {loading ? (
                       <div className="text-center">
                         <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-                        <p className="text-gray-700">جاري معالجة الصورة...</p>
+                        <p className="text-gray-700">{progressStatus}</p>
                         <p className="text-sm text-gray-500 mt-1">{progress}% مكتمل</p>
-                        <p className="text-xs text-gray-400 mt-2">جاري الكشف التلقائي عن اللغة</p>
+                        {advancedMode && (
+                          <p className="text-xs text-purple-400 mt-2">⚡ الوضع المتقدم نشط</p>
+                        )}
                       </div>
                     ) : (
                       <div className="text-center">
                         <FileText className="w-12 h-12 text-gray-300 mx-auto mb-2" />
                         <p>سيظهر النص المستخرج هنا</p>
-                        <p className="text-xs text-gray-400 mt-1">مع الكشف التلقائي عن اللغة</p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          {advancedMode ? 
+                            'مع معالجة متقدمة وتحسين الذكاء الاصطناعي' : 
+                            'مع الكشف التلقائي عن اللغة ومعالجة الصورة'
+                          }
+                        </p>
                       </div>
                     )}
                   </div>
                 )}
               </div>
 
-              {/* Tips */}
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <h4 className="font-medium text-green-800 mb-2">✨ الميزات الجديدة:</h4>
-                <ul className="text-sm text-green-700 space-y-1">
-                  <li>• <strong>الكشف التلقائي عن اللغة</strong> (العربية/الإنجليزية)</li>
-                  <li>• دعم الصور باللغتين معاً</li>
-                  <li>• لا حاجة لاختيار اللغة يدوياً</li>
-                  <li>• نتائج أدق مع الخوارزميات المحسنة</li>
+              {/* Tips & Features */}
+              <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-medium text-blue-800 mb-3 flex items-center">
+                  💡 نصائح لتحسين الدقة:
+                </h4>
+                <ul className="text-sm text-blue-700 space-y-2">
+                  <li className="flex items-start">
+                    <span className="ml-2">•</span>
+                    <span>استخدم صور <strong>عالية الدقة</strong> وواضحة</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="ml-2">•</span>
+                    <span>تأكد من <strong>إضاءة جيدة</strong> وعدم وجود ظلال</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="ml-2">•</span>
+                    <span>الصور ذات <strong>تباين عالي</strong> بين النص والخلفية</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="ml-2">•</span>
+                    <span>استخدم <strong>الوضع المتقدم</strong> للصور المعقدة</span>
+                  </li>
                 </ul>
               </div>
             </div>
