@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "./components/Navbar";
 import FloatingButtonsEnhanced from "./components/FloatingButtonsEnhanced";
+import { SmoothScrollProvider } from "./components/SmoothScrollContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,10 +25,12 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <SmoothScrollProvider>
         {/* ✅ Navbar هنا داخل body بشكل صحيح */}
         <Navbar />
         {children}
         <FloatingButtonsEnhanced />
+        </SmoothScrollProvider>
       </body>
     </html>
   );

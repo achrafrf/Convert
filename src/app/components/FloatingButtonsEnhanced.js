@@ -2,7 +2,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ChevronUp, Zap, Heart, Sparkles } from 'lucide-react';
+import { ChevronUp, Sparkles } from 'lucide-react';
+import Image from 'next/image';
 
 const FloatingButtonsEnhanced = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -35,29 +36,29 @@ const FloatingButtonsEnhanced = () => {
 
   return (
     <>
-      {/* زر Designed By مع تأثيرات متطورة */}
+      {/* زر Designed By مع الصورة */}
       <button
         onClick={handleDesignedByClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className="fixed bottom-6 left-6 z-50 px-5 py-3 bg-gradient-to-r from-purple-600/90 via-blue-600/90 to-cyan-600/90 hover:from-purple-700 hover:via-blue-700 hover:to-cyan-700 text-white rounded-2xl shadow-2xl transition-all duration-500 hover:scale-105 group border-2 border-white/30 backdrop-blur-md"
+        className="fixed bottom-6 left-6 z-50 p-3  transition-all duration-500 hover:scale-105  "
         aria-label="Designed by Achraf Rafiq"
       >
         <div className="flex items-center space-x-2 space-x-reverse relative">
           {/* تأثير Sparkles عند Hover */}
           {isHovered && (
-            <Sparkles className="w-3 h-3 text-amber-300 absolute -top-2 -right-2 animate-ping" />
+            <Sparkles className="w-3 h-3 text-amber-300 absolute -top-1 -right-1 animate-ping" />
           )}
           
-          <Zap className="w-5 h-5 text-amber-300 group-hover:scale-110 group-hover:rotate-12 transition-transform duration-300" />
-          
-          <div className="flex flex-col items-start">
-            <span className="text-xs text-gray-200">Designed by</span>
-            <span className="text-sm font-bold flex items-center">
-              <span className="text-amber-300 bg-gradient-to-r from-amber-300 to-yellow-300 bg-clip-text">
-                Achraf Rafiq
-              </span>
-            </span>
+          {/* الصورة بدلاً من النص */}
+          <div className="relative">
+            <Image 
+              src="/designedbyachraf.png" 
+              alt="Designed by Achraf Rafiq"
+              width={120}
+              height={40}
+              className="transition-transform duration-300 group-hover:scale-110"
+            />
           </div>
         </div>
       </button>

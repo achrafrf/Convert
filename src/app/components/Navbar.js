@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useSmoothScroll } from './SmoothScrollContext';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -77,6 +78,14 @@ const Navbar = () => {
       ]
     }
   ];
+
+const { scrollToSection } = useSmoothScroll();
+
+ const handleNavClick = (sectionId, e) => {
+    e.preventDefault();
+    scrollToSection(sectionId);
+    setIsMenuOpen(false);
+  };
 
   return (
 <nav className="navbar relative z-50">
