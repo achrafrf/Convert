@@ -145,7 +145,7 @@ const ToolsSection = ({ onToolClick }) => {
         { 
           title: "EPUB to PDF", 
           desc: "Convert e-book to PDF", 
-          component: 'EpubToPdf',
+          component: 'epub-to-pdf',
           icon: <FileText className="w-6 h-6" />,
           color: "from-yellow-500 to-orange-500"
         },

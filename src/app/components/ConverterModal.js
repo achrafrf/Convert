@@ -59,7 +59,7 @@ const ConverterModal = ({ activeTool, onClose }) => {
         return <ImageToText onClose={onClose} />;
      case 'PdfToEpub':
         return <PdfToEpub onClose={onClose} />;
-    case 'EpubToPdf':
+    case 'epub-to-pdf':
         return <EpubToPdf onClose={onClose} />;
         case 'merge-pdf':
   return <MergePdf onClose={onClose} />;

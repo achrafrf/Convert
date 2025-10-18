@@ -8,6 +8,7 @@ import ToolsSection from './components/ToolsSection';
 import CTA from './components/CTA';
 import Footer from './components/Footer';
 import ConverterModal from './components/ConverterModal';
+import About from './components/About';
 
 export default function Home() {
   const [activeTool, setActiveTool] = useState(null);
@@ -26,6 +27,7 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <Hero />
       <Features />
+      <About />
       <ToolsSection onToolClick={handleToolClick} />
       <CTA />
       <Footer />
