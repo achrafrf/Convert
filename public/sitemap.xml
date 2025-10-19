@@ -1,39 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <!-- Home -->
+  <!-- Main Pages -->
   <url>
     <loc>https://convertermora.vercel.app/</loc>
-    <lastmod>2025-01-01</lastmod>
-    <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
+  <url>
+    <loc>https://convertermora.vercel.app/about</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://convertermora.vercel.app/contact</loc>
+    <priority>0.8</priority>
+  </url>
 
-  <!-- Image Conversion Tools -->
-  <url><loc>https://convertermora.vercel.app/jpg-to-png</loc><lastmod>2025-01-01</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://convertermora.vercel.app/webp-to-png</loc><lastmod>2025-01-01</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://convertermora.vercel.app/jfif-to-png</loc><lastmod>2025-01-01</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>
-  <url><loc>https://convertermora.vercel.app/png-to-svg</loc><lastmod>2025-01-01</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://convertermora.vercel.app/heic-to-jpg</loc><lastmod>2025-01-01</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://convertermora.vercel.app/heic-to-png</loc><lastmod>2025-01-01</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://convertermora.vercel.app/webp-to-jpg</loc><lastmod>2025-01-01</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>
-  <url><loc>https://convertermora.vercel.app/svg-converter</loc><lastmod>2025-01-01</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
-  <url><loc>https://convertermora.vercel.app/image-compressor</loc><lastmod>2025-01-01</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://convertermora.vercel.app/image-to-ico</loc><lastmod>2025-01-01</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>
-
-  <!-- Document Conversion Tools -->
-  <url><loc>https://convertermora.vercel.app/pdf-to-word</loc><lastmod>2025-01-01</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://convertermora.vercel.app/word-to-pdf</loc><lastmod>2025-01-01</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://convertermora.vercel.app/merge-pdf</loc><lastmod>2025-01-01</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
-  <url><loc>https://convertermora.vercel.app/pdf-to-jpg</loc><lastmod>2025-01-01</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://convertermora.vercel.app/jpg-to-pdf</loc><lastmod>2025-01-01</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://convertermora.vercel.app/docx-to-pdf</loc><lastmod>2025-01-01</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://convertermora.vercel.app/pdf-to-epub</loc><lastmod>2025-01-01</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://convertermora.vercel.app/epub-to-pdf</loc><lastmod>2025-01-01</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://convertermora.vercel.app/heic-to-pdf</loc><lastmod>2025-01-01</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-
-  <!-- Student Tools -->
-  <url><loc>https://convertermora.vercel.app/image-to-text</loc><lastmod>2025-01-01</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://convertermora.vercel.app/video-cutter</loc><lastmod>2025-01-01</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
-  <url><loc>https://convertermora.vercel.app/create-rar-archive</loc><lastmod>2025-01-01</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://convertermora.vercel.app/create-iso-image</loc><lastmod>2025-01-01</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <!-- Tools Pages -->
+  <url><loc>https://convertermora.vercel.app/jpg-to-png</loc></url>
+  <url><loc>https://convertermora.vercel.app/webp-to-png</loc></url>
+  <url><loc>https://convertermora.vercel.app/jfif-to-png</loc></url>
+  <url><loc>https://convertermora.vercel.app/png-to-svg</loc></url>
+  <url><loc>https://convertermora.vercel.app/heic-to-jpg</loc></url>
+  <url><loc>https://convertermora.vercel.app/heic-to-png</loc></url>
+  <url><loc>https://convertermora.vercel.app/webp-to-jpg</loc></url>
+  <url><loc>https://convertermora.vercel.app/svg-converter</loc></url>
+  <url><loc>https://convertermora.vercel.app/image-compressor</loc></url>
+  <url><loc>https://convertermora.vercel.app/image-to-ico</loc></url>
+  <url><loc>https://convertermora.vercel.app/pdf-to-word</loc></url>
+  <url><loc>https://convertermora.vercel.app/word-to-pdf</loc></url>
+  <url><loc>https://convertermora.vercel.app/merge-pdf</loc></url>
+  <url><loc>https://convertermora.vercel.app/pdf-to-jpg</loc></url>
+  <url><loc>https://convertermora.vercel.app/jpg-to-pdf</loc></url>
+  <url><loc>https://convertermora.vercel.app/docx-to-pdf</loc></url>
+  <url><loc>https://convertermora.vercel.app/pdf-to-epub</loc></url>
+  <url><loc>https://convertermora.vercel.app/epub-to-pdf</loc></url>
+  <url><loc>https://convertermora.vercel.app/heic-to-pdf</loc></url>
+  <url><loc>https://convertermora.vercel.app/image-to-text</loc></url>
+  <url><loc>https://convertermora.vercel.app/video-cutter</loc></url>
+  <url><loc>https://convertermora.vercel.app/create-rar-archive</loc></url>
+  <url><loc>https://convertermora.vercel.app/create-iso-image</loc></url>
 </urlset>
