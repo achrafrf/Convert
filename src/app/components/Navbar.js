@@ -3,11 +3,12 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Globe, Check } from 'lucide-react';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const [currentLanguage, setCurrentLanguage] = useState('EN');
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -21,6 +22,19 @@ const Navbar = () => {
     setIsMenuOpen(false);
     setActiveDropdown(null);
   };
+
+  const handleLanguageChange = (language) => {
+    setCurrentLanguage(language);
+    setActiveDropdown(null);
+    // هنا يمكنك إضافة منطق تغيير اللغة
+    console.log('Language changed to:', language);
+  };
+
+  const languages = [
+    { code: 'EN', name: 'English', flag: '🇺🇸' },
+    { code: 'FR', name: 'Français', flag: '🇫🇷' },
+    { code: 'AR', name: 'العربية', flag: '🇸🇦' }
+  ];
 
   const navItems = [
     { 
@@ -65,16 +79,6 @@ const Navbar = () => {
       hasDropdown: true,
       dropdownItems: [
         { label: 'IMAGE TO TEXT', href: '/community/forums' },
-      ]
-    },
-    { 
-      label: 'GALLERY', 
-      href: '/gallery',
-      hasDropdown: true,
-      dropdownItems: [
-        { label: 'Photos', href: '/gallery/photos' },
-        { label: 'GIFs', href: '/gallery/gifs' },
-        { label: 'Wallpapers', href: '/gallery/wallpapers' }
       ]
     }
   ];
@@ -152,6 +156,39 @@ const Navbar = () => {
               )}
             </li>
           ))}
+
+          {/* Language Selector */}
+          <li className={`nav-item dropdown language-selector ${activeDropdown === 'language' ? 'active' : ''}`}>
+            <button 
+              className="nav-link dropdown-toggle language-toggle"
+              onClick={() => toggleDropdown('language')}
+            >
+              <Globe className="w-4 h-4 mr-1" />
+              {currentLanguage}
+              <span className="dropdown-arrow">
+                {activeDropdown === 'language' ? (
+                  <ChevronUp className="w-4 h-4 ml-1 transition-transform duration-200" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 ml-1 transition-transform duration-200" />
+                )}
+              </span>
+            </button>
+            <div className="dropdown-content language-dropdown">
+              {languages.map((language) => (
+                <button
+                  key={language.code}
+                  className={`dropdown-link language-option ${currentLanguage === language.code ? 'active' : ''}`}
+                  onClick={() => handleLanguageChange(language.code)}
+                >
+                  <span className="flag mr-2">{language.flag}</span>
+                  <span className="language-name">{language.name}</span>
+                  {currentLanguage === language.code && (
+                    <Check className="w-4 h-4 ml-auto" />
+                  )}
+                </button>
+              ))}
+            </div>
+          </li>
         </ul>
       </div>
 
@@ -202,6 +239,7 @@ const Navbar = () => {
           padding: 0;
           height: 100%;
           gap: 0;
+          align-items: center;
         }
 
         .nav-item {
@@ -233,6 +271,44 @@ const Navbar = () => {
         .nav-link:hover {
           color: #fff;
           background-color: #2a2a2a;
+        }
+
+        /* Language Selector */
+        .language-selector {
+          margin-left: 10px;
+        }
+
+        .language-toggle {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+        }
+
+        .language-dropdown {
+          min-width: 160px;
+        }
+
+        .language-option {
+          display: flex;
+          align-items: center;
+          width: 100%;
+          text-align: left;
+          background: none;
+          border: none;
+          cursor: pointer;
+        }
+
+        .language-option.active {
+          background-color: #3a3a3a;
+        }
+
+        .flag {
+          font-size: 16px;
+        }
+
+        .language-name {
+          flex: 1;
+          margin-left: 8px;
         }
 
         /* Dropdown Styles */
@@ -375,6 +451,10 @@ const Navbar = () => {
             width: 100%;
             padding: 15px 20px;
             justify-content: space-between;
+          }
+
+          .language-selector {
+            margin-left: 0;
           }
 
           .dropdown-content {

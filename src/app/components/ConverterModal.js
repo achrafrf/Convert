@@ -20,6 +20,8 @@ import HeicToPdf from './converters/documents/HeicToPdf ';
 import WordToPdf from './converters/pdf/WordToPdf';
 import PdfToEpub from './converters/pdf/PdfToEpub';
 import EpubToPdf from './converters/pdf/EpubToPdf';
+import CreateRarArchive from './converters/student-tools/CreateRarArchive';
+import CreateIsoImage from './converters/student-tools/CreateIsoImage';
 
 
 const ConverterModal = ({ activeTool, onClose }) => {
@@ -65,6 +67,10 @@ const ConverterModal = ({ activeTool, onClose }) => {
   return <MergePdf onClose={onClose} />;
   case 'video-cutter':
   return <VideoCutter onClose={onClose} />;
+  case 'CreateRarArchive':
+  return <CreateRarArchive onClose={onClose} />;
+  case 'CreateIsoImage':
+  return <CreateIsoImage onClose={onClose} />;
    case 'Image-to-Ico':
   return <ImageToIco onClose={onClose} />;
    case 'HeicToPdf':

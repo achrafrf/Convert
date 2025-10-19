@@ -4,9 +4,9 @@ import { Sparkles, Upload, ArrowRight } from 'lucide-react';
 const Hero = () => {
   return (
     <section 
-      className="relative py-16 md:py-24 bg-[#19182b] text-white clip-diagonal street-font"
+      className="relative py-16 md:py-24 bg-[#19182b] text-white street-font"
       style={{ 
-        height: '620px', 
+        minHeight: '620px', 
         width: '100%'
       }}
     >
@@ -28,14 +28,14 @@ const Hero = () => {
       
 
       {/* المحتوى */}
-      <div className="container mx-auto px-4 text-center relative z-10">
+      <div className="container mx-auto px-4 text-center relative z-10 flex flex-col justify-center h-full">
         <div className="max-w-4xl mx-auto">
           <div className="inline-flex items-center px-4 py-2 rounded-full bg-white/20 border border-white/30 text-white text-sm font-medium mb-8 backdrop-blur-md street-tag">
             <Sparkles className="w-4 h-4 ml-2" />
             MORE THAN 10,000 TRANSFERS PER MONTH
           </div>
           
-          <h1 className="text-5xl md:text-7xl font-black text-white mb-6 leading-tight drop-shadow-2xl street-heading tracking-tight">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-white mb-6 leading-tight drop-shadow-2xl street-heading tracking-tight">
             CONVERT{' '}
             <span className="text-violet-300 street-accent bg-clip-text drop-shadow-lg">
               ANY FILE
@@ -44,18 +44,18 @@ const Hero = () => {
             EASILY & QUICKLY
           </h1>
           
-          <p className="text-xl text-gray-200 mb-8 max-w-2xl mx-auto leading-relaxed drop-shadow-lg street-subtitle tracking-wide">
+          <p className="text-lg sm:text-xl text-gray-200 mb-8 max-w-2xl mx-auto leading-relaxed drop-shadow-lg street-subtitle tracking-wide">
             INTEGRATED PLATFORM FOR CONVERTING IMAGES & DOCUMENTS WITH HIGH QUALITY. 
             FAST, SECURE, COMPLETELY FREE.
           </p>
 
-          {/* قسم الأزرار - تم رفعه للأعلى */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-12 relative -top-4">
-            <button className="bg-white text-gray-900 px-8 py-4 rounded-lg shadow-2xl hover:shadow-3xl transition-all duration-300 border-2 border-white font-black flex items-center group backdrop-blur-sm hover:scale-105 street-button uppercase tracking-wider text-sm relative z-20">
+          {/* قسم الأزرار - تم تعديله ليكون متجاوبًا بشكل أفضل */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8 sm:mt-12">
+            <button className="w-full sm:w-auto bg-white text-gray-900 px-6 sm:px-8 py-4 rounded-lg shadow-2xl hover:shadow-3xl transition-all duration-300 border-2 border-white font-black flex items-center justify-center group backdrop-blur-sm hover:scale-105 street-button uppercase tracking-wider text-sm relative z-20">
               <Upload className="w-5 h-5 ml-2 group-hover:scale-110 transition-transform" />
               START CONVERTING NOW
             </button>
-            <button className="bg-violet-600 text-white px-8 py-4 rounded-lg shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 font-black flex items-center group backdrop-blur-sm border-2 border-violet-400 street-button-alt uppercase tracking-wider text-sm relative z-20">
+            <button className="w-full sm:w-auto bg-violet-600 text-white px-6 sm:px-8 py-4 rounded-lg shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 font-black flex items-center justify-center group backdrop-blur-sm border-2 border-violet-400 street-button-alt uppercase tracking-wider text-sm relative z-20">
               EXPLORE ALL TOOLS
               <ArrowRight className="w-5 h-5 mr-2 group-hover:translate-x-1 transition-transform" />
             </button>

@@ -1,6 +1,6 @@
 // components/ToolsSection.js
 import { useState } from 'react';
-import { Image, FileText, Zap, Download, ArrowRight ,Scissors } from 'lucide-react';
+import { Image, FileText, Zap, Download, ArrowRight ,Scissors ,FileArchive , Disc    } from 'lucide-react';
 
 const ToolsSection = ({ onToolClick }) => {
   const [isHovered, setIsHovered] = useState(null);
@@ -175,6 +175,22 @@ const ToolsSection = ({ onToolClick }) => {
   desc: "Trim and cut video files to your desired length", 
   component: 'video-cutter',
   icon: <Scissors className="w-6 h-6" />,
+  color: "from-pink-500 to-purple-500",
+  popular: true
+},
+ {
+  title: "CreateRarArchive", 
+  desc: "Trim and cut video files to your desired length", 
+  component: 'CreateRarArchive',
+  icon: <FileArchive  className="w-6 h-6" />,
+  color: "from-pink-500 to-purple-500",
+  popular: true
+},
+ {
+  title: "CreateIsoImage", 
+  desc: "Trim and cut video files to your desired length", 
+  component: 'CreateIsoImage',
+  icon: <Disc    className="w-6 h-6" />,
   color: "from-pink-500 to-purple-500",
   popular: true
 }
