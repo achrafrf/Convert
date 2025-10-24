@@ -3,6 +3,8 @@ import "./globals.css";
 import Navbar from "./components/Navbar";
 import FloatingButtonsEnhanced from "./components/FloatingButtonsEnhanced";
 import { SmoothScrollProvider } from "./components/SmoothScrollContext";
+import Image from 'next/image'
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,6 +21,11 @@ export const metadata = {
   description: "Convert files online for free",
   verification: {
     google: "google27951cad47cb4edd",
+  },
+  openGraph: {
+    title: 'Converter Mora',
+    description: 'Convert all types of files easily and quickly',
+    images: ['/logo.png'], 
   },
 };
 

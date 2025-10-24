@@ -9,6 +9,7 @@ import CTA from './components/CTA';
 import Footer from './components/Footer';
 import ConverterModal from './components/ConverterModal';
 import About from './components/About';
+import Blog from './components/Blog';
 
 export default function Home() {
   const [activeTool, setActiveTool] = useState(null);
@@ -30,6 +31,7 @@ export default function Home() {
       <About />
       <ToolsSection onToolClick={handleToolClick} />
       <CTA />
+      <Blog />
       <Footer />
       <ConverterModal activeTool={activeTool} onClose={closeConverter} />
     </div>
