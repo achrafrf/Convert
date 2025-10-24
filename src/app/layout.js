@@ -33,6 +33,17 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+        <head>
+        {/* ✅ Meta tags إضافية لتحسين ظهور الصورة في Google */}
+        <meta property="og:title" content="Converter Mora" />
+        <meta property="og:description" content="Convert all types of files easily and quickly" />
+        <meta property="og:image" content="https://convertermora.vercel.app/logo.png" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content="https://convertermora.vercel.app/logo.png" />
+        <meta name="twitter:title" content="Converter Mora" />
+        <meta name="twitter:description" content="Convert all types of files easily and quickly" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
